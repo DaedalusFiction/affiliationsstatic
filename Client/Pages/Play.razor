@@ -8,7 +8,7 @@
 <div class="container container-sm">
     <div class="w-full">
         <h1 class="text-center">AFFILIATIONS</h1>
-        <p class="text-center">Create groups of four</p>
+        <p class="text-center">This one's for: @Recipient</p>
         <div class="game-board">
             @foreach (Row row in solvedRows)
             {
@@ -52,6 +52,7 @@
     public static List<Row> solvedRows = new List<Row>() { };
 
     public Board? Solution { get; set; }
+    public string? Recipient { get; set; } = "Anybody";
     public string[]? gameBoard = { };
 
 
@@ -79,6 +80,8 @@
             {
                 // ... deserialize gameData.board.Rows ...
                 solution.Rows = JsonSerializer.Deserialize<List<Row>>(JsonSerializer.Serialize(gameData.board.Rows));
+                @* var name = gameData.Name; *@
+                Recipient = gameData.Recipient;
             }
             else
             {
@@ -99,6 +102,7 @@
     private class GameData
     {
         public string? Id { get; set; }
+        public string? Recipient { get; set; }
 
         public Board? board { get; set; }
 
@@ -195,6 +199,7 @@
     public class Board
     {
         public List<Row>? Rows { get; set; } = new List<Row> { new Row() };
+
 
 
     }

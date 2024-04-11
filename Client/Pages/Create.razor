@@ -20,7 +20,9 @@
                     <h5>Affiliation:</h5>
                 </label>
                 <div>
-                    <input type="text" id="CategoryOne" @bind="CategoryOne" placeholder="e.g. Lunch Meats">
+                    <input maxlength="30" type="text" id="CategoryOne" @bind="CategoryOne" @bind:event="oninput"
+                        placeholder="e.g. Lunch Meats">
+                    <p class="char-limit">@(CategoryOne.Length)/30</p>
                     <h5>Clues:</h5>
                     <ul>
                         @for (int i = 0; i < CluesOne.Count; i++)
@@ -28,8 +30,9 @@
                             var iCopy = i;
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
-                                <input type="text" id="@($"clue{i}")" value="@CluesOne[i]"
-                                    @onchange="@(e => CluesOne[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                                <input maxlength="20" type="text" id="@($"clue{i}")" value="@CluesOne[i]"
+                                    @oninput="@(e => CluesOne[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                            <p class="char-limit">@(CluesOne[i].Length)/20</p>
                             </p>
                         }
                     </ul>
@@ -45,7 +48,9 @@
                     <h5>Affiliation:</h5>
                 </label>
                 <div>
-                    <input type="text" id="CategoryTwo" @bind="CategoryTwo" placeholder="e.g. Lunch Meats">
+                    <input maxlength="30" type="text" id="CategoryTwo" @bind="CategoryTwo" @bind:event="oninput"
+                        placeholder="e.g. Parts of a flower">
+                    <p class="char-limit">@(CategoryTwo.Length)/30</p>
                     <h5>Clues:</h5>
                     <ul>
                         @for (int i = 0; i < CluesTwo.Count; i++)
@@ -53,8 +58,9 @@
                             var iCopy = i;
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
-                                <input type="text" id="@($"clue{i}")" value="@CluesTwo[i]"
-                                    @onchange="@(e => CluesTwo[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                                <input maxlength="20" type="text" id="@($"clue{i}")" value="@CluesTwo[i]"
+                                    @oninput="@(e => CluesTwo[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                            <p class="char-limit">@(CluesTwo[i].Length)/20</p>
                             </p>
                         }
                     </ul>
@@ -70,7 +76,9 @@
                     <h5>Affiliation:</h5>
                 </label>
                 <div>
-                    <input type="text" id="CategoryThree" @bind="CategoryThree" placeholder="e.g. Lunch Meats">
+                    <input maxlength="30" type="text" id="CategoryThree" @bind="CategoryThree" @bind:event="oninput"
+                        placeholder="e.g. ____ Friday">
+                    <p class="char-limit">@(CategoryThree.Length)/30</p>
                     <h5>Clues:</h5>
                     <ul>
                         @for (int i = 0; i < CluesThree.Count; i++)
@@ -78,8 +86,9 @@
                             var iCopy = i;
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
-                                <input type="text" id="@($"clue{i}")" value="@CluesThree[i]"
-                                    @onchange="@(e => CluesThree[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                                <input maxlength="20" type="text" id="@($"clue{i}")" value="@CluesThree[i]"
+                                    @oninput="@(e => CluesThree[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                            <p class="char-limit">@(CluesThree[i].Length)/20</p>
                             </p>
                         }
                     </ul>
@@ -95,7 +104,9 @@
                     <h5>Affiliation:</h5>
                 </label>
                 <div>
-                    <input type="text" id="CategoryFour" @bind="CategoryFour" placeholder="e.g. Lunch Meats">
+                    <input maxlength="30" type="text" id="CategoryFour" @bind="CategoryFour" @bind:event="oninput"
+                        placeholder="e.g. Things you find at a flea market">
+                    <p class="char-limit">@(CategoryFour.Length)/30</p>
                     <h5>Clues:</h5>
                     <ul>
                         @for (int i = 0; i < CluesFour.Count; i++)
@@ -103,12 +114,30 @@
                             var iCopy = i;
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
-                                <input type="text" id="@($"clue{i}")" value="@CluesFour[i]"
-                                    @onchange="@(e => CluesFour[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                                <input maxlength="20" type="text" id="@($"clue{i}")" value="@CluesFour[i]"
+                                    @oninput="@(e => CluesFour[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
+                            <p class="char-limit">@(CluesOne[i].Length)/20</p>
                             </p>
                         }
                     </ul>
                 </div>
+
+            </div>
+            <div class="category-input">
+                <label for="recipient">
+                    <h5>Who is this for?</h5>
+                </label>
+                <div>
+                    @* <input id="recipient" placeholder="e.g. Grandma, or Anyone" @bind="Recipient" type="text" /> *@
+                    <select @bind="Recipient">
+                        <option>Anyone</option>
+                        <option>Grandma</option>
+                        <option>Mom</option>
+                        <option>Aunt Mary</option>
+                        <option>Aunt Joan</option>
+                    </select>
+                </div>
+
             </div>
         </div>
         <div class="flex justify-center gap">
@@ -146,6 +175,8 @@
     private string CategoryFour = "";
     [Required]
     private List<string> CluesFour = new List<string>() { "", "", "", "" };
+    [Required]
+    private string Recipient = "";
     public void createGame()
     {
 
@@ -210,6 +241,12 @@
         return isValid;
     }
 
+    public class GameData
+    {
+        public string? Recipient { get; set; }
+        public Board? Board { get; set; }
+    }
+
     private async void HandleSubmit()
     {
         Row firstRow = new Row(CategoryOne, CluesOne, "#067BC2");
@@ -219,11 +256,11 @@
         List<Row> rows = new List<Row> { firstRow, secondRow, thirdRow, fourthRow };
         Board GameBoard = new Board(rows);
 
-        var data = new { Name = "Stuff", Board = GameBoard };
+        var data = new GameData { Recipient = Recipient, Board = GameBoard };
         if (ValidateForm())
         {
             var docID = await JSRuntime.InvokeAsync<string>("addDataToFirestore", "games", data);
-            GameURL = $"https://icy-ocean-06ec91e10.5.azurestaticapps.net/play/{docID}";
+            GameURL = $"https://davidsorensen.dev/play/{docID}";
             await CopyTextToClipboard(GameURL);
         }
         else

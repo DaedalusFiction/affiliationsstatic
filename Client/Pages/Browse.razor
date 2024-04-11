@@ -1,0 +1,94 @@
+@page "/browse/{Param?}"
+@using System.Text.Json
+@using System.Threading
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Browse Games</PageTitle>
+
+<div class="container container-sm">
+    <div class="w-full">
+        <h1 class="text-center">Games</h1>
+        @if (Recipients != null)
+        {
+            foreach (string recipient in Recipients)
+            {
+                <h2>For @recipient</h2>
+                if (Documents != null)
+                {
+                    <ul>
+                        @foreach (FirebaseDoc document in Documents.Documents)
+                        {
+                            @if (document.Recipient == recipient)
+                            {
+                                <li><a href="/play/@document.Id">@document.Id</a></li>
+                            }
+                        }
+                    </ul>
+                }
+            }
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string? Param { get; set; }
+
+    public List<string>? Recipients = new List<string>() { "Anyone", "Mom", "Grandma", "Aunt Joan" };
+    public static FirebaseDocs? Documents { get; set; }
+    private static Timer? _timer { get; set; }
+    public static List<string> selectedClues = new List<string>() { };
+    public static List<Row> solvedRows = new List<Row>() { };
+    public Board? Solution { get; set; }
+    public string? Recipient { get; set; } = "Anybody";
+    public string[]? gameBoard = { };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            FirebaseDoc[] docsArray = await JSRuntime.InvokeAsync<FirebaseDoc[]>("getLatestDocumentsFromFirestore", "games");
+            FirebaseDocs gameData = new FirebaseDocs(docsArray);
+            Documents = gameData;
+            // Find the document with the specified documentId
+
+
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public class FirebaseDoc
+    {
+        public string Id { get; set; }
+        public string Recipient { get; set; }
+        public Board Board { get; set; }
+    }
+
+    public class FirebaseDocs
+    {
+        public List<FirebaseDoc> Documents { get; set; }
+        public FirebaseDocs(FirebaseDoc[] docs)
+        {
+            Documents = new List<FirebaseDoc>(docs);
+        }
+    }
+
+    public class Board
+    {
+        public List<Row> Rows { get; set; }
+    }
+
+    public class Row
+    {
+        public string Affiliation { get; set; }
+        public bool Solved { get; set; }
+        public string BackgroundColor { get; set; }
+        public List<string> Clues { get; set; }
+    }
+
+    public void handleClick()
+    {
+        ((IJSRuntime)JSRuntime).InvokeVoidAsync("console.log", "hi");
+    }
+}

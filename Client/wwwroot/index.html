@@ -78,6 +78,25 @@
                         return null;
                     });
             }
+            function getLatestDocumentsFromFirestore(collectionName) {
+                const db = firebase.firestore();
+                return db
+                    .collection(collectionName)
+                    .get()
+                    .then(function (querySnapshot) {
+                        const documents = [];
+                        querySnapshot.forEach(function (doc) {
+                            // Add the document data to the documents array
+                            documents.push({ id: doc.id, ...doc.data() });
+                        });
+                        console.log(documents);
+                        return documents;
+                    })
+                    .catch(function (error) {
+                        console.error("Error getting documents:", error);
+                        return null;
+                    });
+            }
         </script>
     </body>
 </html>
