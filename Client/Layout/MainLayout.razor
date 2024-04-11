@@ -9,23 +9,9 @@
 
 
         <article class="py-8">
-            <ErrorBoundary>
-                <ChildContent>
-                    @Body
-                </ChildContent>
-                <ErrorContent>
-                    <p class="errorUI">@*blank*@</p>
-                </ErrorContent>
-            </ErrorBoundary>
+
+            @Body
+
         </article>
     </main>
 </div>
-
-@code {
-    private ErrorBoundary? errorBoundary;
-
-    protected override void OnParametersSet()
-    {
-        errorBoundary?.Recover();
-    }
-}
