@@ -130,11 +130,10 @@
                 <div>
                     @* <input id="recipient" placeholder="e.g. Grandma, or Anyone" @bind="Recipient" type="text" /> *@
                     <select @bind="Recipient">
-                        <option>Anyone</option>
-                        <option>Grandma</option>
-                        <option>Mom</option>
-                        <option>Aunt Mary</option>
-                        <option>Aunt Joan</option>
+                        @foreach (string recipient in Recipients)
+                        {
+                            <option>@recipient</option>
+                        }
                     </select>
                 </div>
 
@@ -159,6 +158,9 @@
 
 @code {
     private string? GameURL;
+    public string[] Recipients = { "Anyone", "Mom", "Grandma", "Aunt Joan", "Aunt Mary",
+"Catherine", "Uncle Dave", "Dad", "Dave", "Steve" };
+
     [Required]
     private string CategoryOne = "";
     [Required]
