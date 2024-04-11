@@ -12,18 +12,26 @@
         <div class="game-board">
             @foreach (Row row in solvedRows)
             {
-                <div class="solved-row" style="@($"background-color: {row.BackgroundColor};")">
-                    <h4>@row.Affiliation</h4>
-                    <p>@(String.Join(", ", row.Clues))</p>
-                </div>
 
+                @if (row.Clues != null)
+                {
+                    <div class="solved-row" style="@($"background-color: {row.BackgroundColor};")">
+                        <h4>@row.Affiliation</h4>
+                        <p>@(String.Join(", ", row.Clues))</p>
+                    </div>
+
+                }
             }
-            @foreach (string clue in gameBoard)
+            @if (gameBoard != null)
             {
-                <div class="@(selectedClues.Contains(clue) ? "game-tile-selected game-tile" : "game-tile" )"
-                    @onclick="() => handleClickClue(clue)">
-                    <p>@clue</p>
-                </div>
+
+                @foreach (string clue in gameBoard)
+                {
+                    <div class="@(selectedClues.Contains(clue) ? "game-tile-selected game-tile" : "game-tile" )"
+                        @onclick="() => handleClickClue(clue)">
+                        <p>@clue</p>
+                    </div>
+                }
             }
 
         </div>
@@ -38,7 +46,7 @@
 @code {
     [Parameter]
     public string? Param { get; set; }
-    private static Timer _timer { get; set; }
+    private static Timer? _timer { get; set; }
 
     public static List<string> selectedClues = new List<string>() { };
     public static List<Row> solvedRows = new List<Row>() { };
@@ -66,7 +74,18 @@
 
             // Deserialize the board data into a Board object
             Board solution = new Board();
-            solution.Rows = JsonSerializer.Deserialize<List<Row>>(JsonSerializer.Serialize(gameData.board.Rows));
+
+            if (gameData?.board?.Rows != null)
+            {
+                // ... deserialize gameData.board.Rows ...
+                solution.Rows = JsonSerializer.Deserialize<List<Row>>(JsonSerializer.Serialize(gameData.board.Rows));
+            }
+            else
+            {
+                // Handle the case when gameData, gameData.board, or gameData.board.Rows is null
+                solution.Rows = new List<Row>(); // Or any other default value you want to assign
+            }
+
             Solution = solution;
 
             handleReset();
@@ -81,23 +100,29 @@
     private class GameData
     {
         public string? Id { get; set; }
-        public Board board { get; set; }
+
+        public Board? board { get; set; }
 
     }
 
     public static string[] handleGenerateGameBoard(Board solution)
     {
-        List<string> cluesList = new List<string>(); // Initialize a list to store clues
-        foreach (Row row in solution.Rows)
+        List<string> cluesList = new List<string>();
+
+        if (solution.Rows != null)
         {
-            foreach (string clue in row.Clues)
+
+            foreach (Row row in solution.Rows)
             {
-                cluesList.Add(clue); // Add clues to the list
+                if (row.Clues != null)
+                {
+                    cluesList.AddRange(row.Clues);
+                }
             }
         }
 
-        string[] clues = cluesList.ToArray(); // Convert the list to an array
-        Random.Shared.Shuffle(clues); // Shuffle the ar
+        string[] clues = cluesList.ToArray();
+        Random.Shared.Shuffle(clues);
         return clues;
     }
 
@@ -121,28 +146,38 @@
     public void handleReset()
     {
         solvedRows = new List<Row>();
-        foreach (Row row in Solution.Rows)
+        if (Solution != null && Solution.Rows != null)
         {
-            row.Solved = false;
+            foreach (Row row in Solution.Rows)
+            {
+                row.Solved = false;
+            }
+            gameBoard = handleGenerateGameBoard(Solution);
         }
-        gameBoard = handleGenerateGameBoard(Solution);
     }
 
 
     public void handleSolve()
     {
         Thread.Sleep(500);
-        foreach (Row row in Solution.Rows)
+        if (Solution != null && Solution.Rows != null)
         {
-            var result = selectedClues.Intersect(row.Clues);
-            if (result.Count() == 3) { }
-            else if (result.Count() == 4)
+            foreach (Row row in Solution.Rows)
             {
-                solvedRows.Add(row);
-                string[] newBoard = gameBoard.Where(clue => !row.Clues.Contains(clue)).ToArray();
-                selectedClues = new List<string>();
-                gameBoard = newBoard;
-                ((IJSRuntime)JSRuntime).InvokeVoidAsync("console.log", row.Affiliation);
+                if (row.Clues != null)
+                {
+
+                    var result = selectedClues.Intersect(row.Clues);
+                    if (result.Count() == 3) { }
+                    else if (result.Count() == 4 && gameBoard != null)
+                    {
+                        solvedRows.Add(row);
+                        string[] newBoard = gameBoard.Where(clue => !row.Clues.Contains(clue)).ToArray();
+                        selectedClues = new List<string>();
+                        gameBoard = newBoard;
+                        ((IJSRuntime)JSRuntime).InvokeVoidAsync("console.log", row.Affiliation);
+                    }
+                }
             }
         }
     }
@@ -150,15 +185,17 @@
     public void handleRandomize()
     {
         selectedClues = new List<string>();
-
-        Random.Shared.Shuffle(gameBoard);
+        if (gameBoard != null)
+        {
+            Random.Shared.Shuffle(gameBoard);
+        }
     }
 
 
 
     public class Board
     {
-        public List<Row> Rows { get; set; } = new List<Row> { new Row() };
+        public List<Row>? Rows { get; set; } = new List<Row> { new Row() };
 
 
     }

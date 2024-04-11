@@ -29,7 +29,7 @@
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
                                 <input type="text" id="@($"clue{i}")" value="@CluesOne[i]"
-                                    @onchange="@(e => CluesOne[iCopy] = e.Value.ToString())" placeholder="Clue" />
+                                    @onchange="@(e => CluesOne[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
                             </p>
                         }
                     </ul>
@@ -54,7 +54,7 @@
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
                                 <input type="text" id="@($"clue{i}")" value="@CluesTwo[i]"
-                                    @onchange="@(e => CluesTwo[iCopy] = e.Value.ToString())" placeholder="Clue" />
+                                    @onchange="@(e => CluesTwo[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
                             </p>
                         }
                     </ul>
@@ -79,7 +79,7 @@
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
                                 <input type="text" id="@($"clue{i}")" value="@CluesThree[i]"
-                                    @onchange="@(e => CluesThree[iCopy] = e.Value.ToString())" placeholder="Clue" />
+                                    @onchange="@(e => CluesThree[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
                             </p>
                         }
                     </ul>
@@ -104,19 +104,33 @@
                             <p>
                                 <label hidden for="@($"clue{i}")">@(i + 1)</label>
                                 <input type="text" id="@($"clue{i}")" value="@CluesFour[i]"
-                                    @onchange="@(e => CluesFour[iCopy] = e.Value.ToString())" placeholder="Clue" />
+                                    @onchange="@(e => CluesFour[iCopy] = e?.Value?.ToString() ?? "")" placeholder="Clue" />
                             </p>
                         }
                     </ul>
                 </div>
             </div>
         </div>
-        <div class="flex justify-center"><button class="btn" type="submit">Generate Link</button></div>
+        <div class="flex justify-center gap">
+            <button class="btn" type="submit">Create Game</button>
+        </div>
+        @if (GameURL != null)
+        {
+            <div>
+                <p>@GameURL</p>
+                <button class="btn" @onclick="() => CopyTextToClipboard(GameURL)">Copy link</button>
+            </div>
+        }
+
+
+
     </EditForm>
 </div>
 
 
 @code {
+    private string? Text;
+    private string? GameURL;
     [Required]
     private string CategoryOne = "";
     [Required]
@@ -182,43 +196,23 @@
     private bool ValidateForm()
     {
         bool isValid = true;
-
-        // Validate category names
         if (string.IsNullOrWhiteSpace(CategoryOne))
         {
-            // Handle validation error for CategoryOne
             isValid = false;
         }
-        // Repeat for CategoryTwo, CategoryThree, and CategoryFour
-
-        // Validate clues
         foreach (var clue in CluesOne)
         {
             if (string.IsNullOrWhiteSpace(clue))
             {
-                // Handle validation error for clue
                 isValid = false;
             }
         }
-        // Repeat for CluesTwo, CluesThree, and CluesFour
 
         return isValid;
     }
 
-    private void HandleSubmit()
+    private async void HandleSubmit()
     {
-        @* Row First = new Row("Candy", new List<string> { "Snickers", "Milky Way", "Pixie Stick", "Skittles" },
-"#067BC2");
-Row Second = new Row("Meads", new List<string> { "Salami", "Pepperoni", "Ham", "Bacon" },
-"#DF2935");
-Row Third = new Row("Soda", new List<string> { "Mtn Dew", "Pepsi", "Coca-cola", "Sprite" },
-"#5F0A87");
-Row Fourth = new Row("Bands", new List<string> { "Radiohead", "Vampire Weekend", "Cold War Kids", "Beatles" },
-"#3F220F");
-
-List<Row> GameRows = new List<Row> { First, Second, Third, Fourth };
-Board GameBoard = new Board(GameRows); *@
-
         Row firstRow = new Row(CategoryOne, CluesOne, "#067BC2");
         Row secondRow = new Row(CategoryTwo, CluesTwo, "#DF2935");
         Row thirdRow = new Row(CategoryThree, CluesThree, "#5F0A87");
@@ -229,12 +223,19 @@ Board GameBoard = new Board(GameRows); *@
         var data = new { Name = "Stuff", Board = GameBoard };
         if (ValidateForm())
         {
-            ((IJSRuntime)JSRuntime).InvokeVoidAsync("addDataToFirestore", "games", data);
+            var docID = await JSRuntime.InvokeAsync<string>("addDataToFirestore", "games", data);
+            GameURL = $"https://icy-ocean-06ec91e10.5.azurestaticapps.net/play/{docID}";
+            await CopyTextToClipboard(GameURL);
         }
         else
         {
             Console.WriteLine("invalid");
         }
+    }
+
+    private async Task CopyTextToClipboard(string text)
+    {
+        await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", text);
     }
 
 }
