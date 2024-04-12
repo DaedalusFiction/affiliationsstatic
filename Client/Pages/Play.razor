@@ -27,7 +27,7 @@
 
                 @foreach (string clue in gameBoard)
                 {
-                    <div class="@(selectedClues.Contains(clue) ? "game-tile-selected game-tile" : "game-tile" )"
+                    <div class="@(selectedClues.Contains(clue) ? "game-tile-selected game-tile " + PlayErrorAnimation : "game-tile" )"
                         @onclick="() => handleClickClue(clue)">
                         <p>@clue</p>
                     </div>
@@ -36,16 +36,23 @@
 
         </div>
         <div class="flex justify-center gap">
-            <button class="btn" @onclick="handleSolve">Solve</button>
+            <button class="btn" disabled="@(selectedClues?.Count < 4)" @onclick="() => handleSolve()">Solve</button>
             <button class="btn" @onclick="handleRandomize">Shuffle</button>
             <button class="btn" @onclick="handleReset">Reset</button>
         </div>
+        <br />
+        @if (OneAway)
+        {
+            <p class="text-center">One Away!</p>
+        }
     </div>
 </div>
 
 @code {
     [Parameter]
     public string? Param { get; set; }
+    public string PlayErrorAnimation { get; set; } = "";
+    private bool OneAway { get; set; } = false;
     private static Timer? _timer { get; set; }
 
     public static List<string> selectedClues = new List<string>() { };
@@ -129,9 +136,11 @@
         return clues;
     }
 
-    public static void handleClickClue(string clue)
+    public void handleClickClue(string clue)
 
     {
+        PlayErrorAnimation = "";
+        OneAway = false;
         if (selectedClues.Contains(clue))
         {
             selectedClues.Remove(clue);
@@ -171,7 +180,14 @@
                 {
 
                     var result = selectedClues.Intersect(row.Clues);
-                    if (result.Count() == 3) { }
+                    if (result.Count() == 3)
+                    {
+                        PlayErrorAnimation = "error-animation";
+                        OneAway = true;
+
+
+
+                    }
                     else if (result.Count() == 4 && gameBoard != null)
                     {
                         solvedRows.Add(row);
@@ -179,6 +195,10 @@
                         selectedClues = new List<string>();
                         gameBoard = newBoard;
                         ((IJSRuntime)JSRuntime).InvokeVoidAsync("console.log", row.Affiliation);
+                    }
+                    else
+                    {
+                        PlayErrorAnimation = "error-animation";
                     }
                 }
             }
