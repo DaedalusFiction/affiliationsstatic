@@ -47,6 +47,7 @@ h5 {
 p,
 li {
     font-family: "EBGaramond";
+    list-style: none;
 }
 
 a,

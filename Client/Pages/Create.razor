@@ -1,6 +1,7 @@
 ﻿@page "/create-and-share"
 @inject IJSRuntime JSRuntime
 @using System.ComponentModel.DataAnnotations
+@using System.Globalization
 
 <PageTitle>Create and Share</PageTitle>
 
@@ -141,13 +142,16 @@
         </div>
         <div class="flex justify-center gap">
             <button class="btn" type="submit">Create Game</button>
+            @if (GameURL != null)
+            {
+                <button class="btn" @onclick="() => CopyTextToClipboard(GameURL)">Copy link</button>
+            }
         </div>
         @if (GameURL != null)
         {
-            <div>
-                <p>@GameURL</p>
-                <button class="btn" @onclick="() => CopyTextToClipboard(GameURL)">Copy link</button>
-            </div>
+
+            <p class="text-center my-3">@GameURL</p>
+
         }
 
 
@@ -158,8 +162,8 @@
 
 @code {
     private string? GameURL;
-    public string[] Recipients = { "Anyone", "Mom", "Grandma", "Aunt Joan", "Aunt Mary",
-"Catherine", "Uncle Dave", "Dad", "Dave", "Steve" };
+    public string[] Recipients = { "Anyone", "Joanie", "Grandma", "Aunt Joan", "Mary",
+"Catherine", "Dave L.", "Jack", "Dave S.", "Steve", "Not Listed" };
 
     [Required]
     private string CategoryOne = "";
@@ -178,7 +182,7 @@
     [Required]
     private List<string> CluesFour = new List<string>() { "", "", "", "" };
     [Required]
-    private string Recipient = "";
+    private string Recipient = "Anyone";
     public void createGame()
     {
 
@@ -247,6 +251,8 @@
     {
         public string? Recipient { get; set; }
         public Board? Board { get; set; }
+
+        public DateTime CreatedAt { get; set; }
     }
 
     private async void HandleSubmit()
@@ -258,12 +264,22 @@
         List<Row> rows = new List<Row> { firstRow, secondRow, thirdRow, fourthRow };
         Board GameBoard = new Board(rows);
 
-        var data = new GameData { Recipient = Recipient, Board = GameBoard };
+        var data = new GameData { Recipient = Recipient, Board = GameBoard, CreatedAt = DateTime.Now };
         if (ValidateForm())
         {
             var docID = await JSRuntime.InvokeAsync<string>("addDataToFirestore", "games", data);
             GameURL = $"https://davidsorensen.dev/play/{docID}";
             await CopyTextToClipboard(GameURL);
+            CategoryOne = "";
+            CategoryTwo = "";
+            CategoryThree = "";
+            CategoryFour = "";
+            Recipient = "Anyone";
+            CluesOne = new List<string>() { "", "", "", "" };
+            CluesTwo = new List<string>() { "", "", "", "" };
+            CluesThree = new List<string>() { "", "", "", "" };
+            CluesFour = new List<string>() { "", "", "", "" };
+            await InvokeAsync(StateHasChanged);
         }
         else
         {

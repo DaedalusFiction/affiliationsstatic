@@ -8,7 +8,7 @@
 <div class="container container-sm">
     <div class="w-full">
         <h1 class="text-center">AFFILIATIONS</h1>
-        <p class="text-center">This one's for: @Recipient</p>
+        <p class="text-center">This one's for: @(Recipient == "Not Listed" ? "Someone Special!" : Recipient)</p>
         <div class="game-board">
             @foreach (Row row in solvedRows)
             {

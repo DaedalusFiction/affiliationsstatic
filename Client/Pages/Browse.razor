@@ -2,29 +2,36 @@
 @using System.Text.Json
 @using System.Threading
 @inject IJSRuntime JSRuntime
+@using System.Globalization
 
 <PageTitle>Browse Games</PageTitle>
 
-<div class="container container-sm">
+<div class="container container-md">
     <div class="w-full">
         <h1 class="text-center">Games</h1>
         @if (Recipients != null)
         {
             foreach (string recipient in Recipients)
             {
-                <h2>For @recipient</h2>
-                if (Documents != null)
-                {
-                    <ul>
-                        @foreach (FirebaseDoc document in Documents.Documents)
-                        {
-                            @if (document.Recipient == recipient)
-                            {
-                                <li><a href="/play/@document.Id">@document.Id</a></li>
-                            }
-                        }
-                    </ul>
-                }
+                <div class="category-panel">
+                    <div class="category-header">
+                        <h2>For @recipient</h2>
+                    </div>
+                    @if (Documents != null)
+                    {
+                        <div class="category-input">
+                            <ul>
+                                @foreach (FirebaseDoc document in Documents.Documents)
+                                {
+                                    @if (document.Recipient == recipient)
+                                    {
+                                        <li><a href="/play/@document.Id">@(document.CreatedAt != null ? formatDate(document.CreatedAt) : document.Id)</a></li>
+                                    }
+                                }
+                            </ul>
+                        </div>
+                    }
+                </div>
             }
         }
     </div>
@@ -34,8 +41,8 @@
     [Parameter]
     public string? Param { get; set; }
 
-    public List<string>? Recipients = new List<string>() { "Anyone", "Mom", "Grandma", "Aunt Joan", "Aunt Mary",
-"Catherine", "Uncle Dave", "Dad", "Dave", "Steve" };
+    public List<string>? Recipients = new List<string>() { "Anyone", "Joanie", "Grandma", "Aunt Joan", "Mary",
+"Catherine", "Dave L.", "Jack", "Dave S.", "Steve", "Not Listed" };
     public static FirebaseDocs? Documents { get; set; }
     private static Timer? _timer { get; set; }
     public static List<string> selectedClues = new List<string>() { };
@@ -62,8 +69,21 @@
     public class FirebaseDoc
     {
         public string Id { get; set; }
-        public string Recipient { get; set; }
+        public string? CreatedAt { get; set; }
+        public string? Recipient { get; set; }
         public Board Board { get; set; }
+    }
+
+    public string formatDate(string date)
+    {
+        string format = "yyyy-MM-ddTHH:mm:ss.fffzzz";
+
+        DateTime dt = DateTime.ParseExact(date, format, System.Globalization.CultureInfo.InvariantCulture);
+
+        // Now you can format the DateTime object as desired
+        string formattedDate = dt.ToString("MM/dd/yyyy");
+        Console.WriteLine(formattedDate);
+        return formattedDate;
     }
 
     public class FirebaseDocs
