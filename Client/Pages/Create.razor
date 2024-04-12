@@ -139,6 +139,16 @@
                 </div>
 
             </div>
+            <div class="category-input">
+                <label for="recipient">
+                    <h5>Your Name (optional)</h5>
+                </label>
+                <div>
+                    <label hidden for="creatorName">Name</label>
+                    <input maxlength="20" type="text" id="creatorName" @bind-value="Creator" placeholder="Your name" />
+                </div>
+
+            </div>
         </div>
         <div class="flex justify-center gap">
             <button class="btn" type="submit">Create Game</button>
@@ -183,6 +193,7 @@
     private List<string> CluesFour = new List<string>() { "", "", "", "" };
     [Required]
     private string Recipient = "Anyone";
+    private string? Creator = "";
     public void createGame()
     {
 
@@ -250,6 +261,7 @@
     public class GameData
     {
         public string? Recipient { get; set; }
+        public string? Creator { get; set; }
         public Board? Board { get; set; }
 
         public DateTime CreatedAt { get; set; }
@@ -264,7 +276,7 @@
         List<Row> rows = new List<Row> { firstRow, secondRow, thirdRow, fourthRow };
         Board GameBoard = new Board(rows);
 
-        var data = new GameData { Recipient = Recipient, Board = GameBoard, CreatedAt = DateTime.Now };
+        var data = new GameData { Recipient = Recipient, Board = GameBoard, CreatedAt = DateTime.Now, Creator = Creator };
         if (ValidateForm())
         {
             var docID = await JSRuntime.InvokeAsync<string>("addDataToFirestore", "games", data);
