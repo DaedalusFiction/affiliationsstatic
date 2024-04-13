@@ -36,10 +36,20 @@
             }
 
         </div>
+        <div>
+            <p class="text-center">Mistakes Remaining: @(String.Concat(Enumerable.Repeat("◆ ", Math.Max(4 -
+                Mistakes, 0))))
+            </p>
+        </div>
         <div class="flex justify-center gap">
             <button class="btn" disabled="@(selectedClues?.Count < 4)" @onclick="() => handleSolve()">Solve</button>
             <button class="btn" @onclick="handleRandomize">Shuffle</button>
             <button class="btn" @onclick="handleReset">Reset</button>
+            @if (Mistakes > 3)
+            {
+                <button class="btn" @onclick="handleGiveUp">Give Up</button>
+
+            }
         </div>
         <br />
         @if (OneAway)
@@ -54,6 +64,7 @@
     public string? Param { get; set; }
     public string PlayErrorAnimation { get; set; } = "";
     private bool OneAway { get; set; } = false;
+    private int Mistakes { get; set; } = 0;
     private static Timer? _timer { get; set; }
 
     public static List<string> selectedClues = new List<string>() { };
@@ -162,6 +173,7 @@
     public void handleReset()
     {
         solvedRows = new List<Row>();
+        Mistakes = 0;
         if (Solution != null && Solution.Rows != null)
         {
             foreach (Row row in Solution.Rows)
@@ -171,10 +183,24 @@
             gameBoard = handleGenerateGameBoard(Solution);
         }
     }
+    public void handleGiveUp()
+    {
+        gameBoard = new string[] { };
+
+        foreach (Row row in Solution?.Rows)
+        {
+            if (!solvedRows.Contains(row))
+            {
+
+                solvedRows.Add(row);
+            }
+        }
+    }
 
 
     public void handleSolve()
     {
+        bool success = false;
         Thread.Sleep(500);
         if (Solution != null && Solution.Rows != null)
         {
@@ -189,8 +215,6 @@
                         PlayErrorAnimation = "error-animation";
                         OneAway = true;
 
-
-
                     }
                     else if (result.Count() == 4 && gameBoard != null)
                     {
@@ -198,15 +222,19 @@
                         string[] newBoard = gameBoard.Where(clue => !row.Clues.Contains(clue)).ToArray();
                         selectedClues = new List<string>();
                         gameBoard = newBoard;
+                        success = true;
                         ((IJSRuntime)JSRuntime).InvokeVoidAsync("console.log", row.Affiliation);
                     }
                     else
                     {
                         PlayErrorAnimation = "error-animation";
+                        Console.WriteLine("sdf");
+
                     }
                 }
             }
         }
+        if (!success) { Mistakes++; }
     }
 
     public void handleRandomize()
