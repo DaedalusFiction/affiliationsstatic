@@ -6,8 +6,13 @@
 <PageTitle>Play Affiliations</PageTitle>
 
 <div class="container container-sm">
+
     <div class="w-full">
         <h1 class="text-center">AFFILIATIONS</h1>
+        @if (Mistakes == 0 && solvedRows.Count == 4)
+        {
+            <Confetti />
+        }
         <p class="text-center">This one's for: @(Recipient == "Not Listed" ? "Someone Special!" : Recipient)</p>
         <p class="text-center">Made by: @(Creator)</p>
         <div class="game-board">
@@ -51,6 +56,7 @@
 
             }
         </div>
+
         <br />
         @if (OneAway)
         {
