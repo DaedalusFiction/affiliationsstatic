@@ -55,7 +55,7 @@
     {
         if (firstRender)
         {
-
+            
             FirebaseDoc[] docsArray = await JSRuntime.InvokeAsync<FirebaseDoc[]>("getLatestDocumentsFromFirestore", "games");
             FirebaseDocs gameData = new FirebaseDocs(docsArray);
             Documents = gameData;
@@ -71,19 +71,24 @@
         public string Id { get; set; }
         public string? CreatedAt { get; set; }
         public string? Recipient { get; set; }
+        public string? Creator {get;set;}
         public Board Board { get; set; }
     }
 
     public string formatDate(string date)
     {
         string format = "yyyy-MM-ddTHH:mm:ss.fffzzz";
+        try {
 
-        DateTime dt = DateTime.ParseExact(date, format, System.Globalization.CultureInfo.InvariantCulture);
+         DateTime dt = DateTime.ParseExact(date, format, System.Globalization.CultureInfo.InvariantCulture);
 
         // Now you can format the DateTime object as desired
         string formattedDate = dt.ToString("MM/dd/yyyy");
         Console.WriteLine(formattedDate);
-        return formattedDate;
+        return formattedDate; 
+        } catch {
+            return date;
+        }
     }
 
     public class FirebaseDocs
