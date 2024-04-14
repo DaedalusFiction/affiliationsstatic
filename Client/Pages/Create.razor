@@ -1,5 +1,6 @@
 ﻿@page "/create-and-share"
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @using System.ComponentModel.DataAnnotations
 @using System.Globalization
 
@@ -153,45 +154,51 @@
                 </div>
 
             </div>
-            <div class="category-input">
-                <label for="recipient">
-                    <h5>Who is this for?</h5>
-                </label>
-                <div>
-                    @* <input id="recipient" placeholder="e.g. Grandma, or Anyone" @bind="Recipient" type="text" /> *@
-                    <select @bind="Recipient">
-                        @foreach (string recipient in Recipients)
-                        {
-                            <option>@recipient</option>
-                        }
-                    </select>
+        </div>
+        <div>
+            <div class="category-panel">
+                <div class="category-header">
+                    <h3>General Info</h3>
                 </div>
+                <div class="category-input">
 
-            </div>
-            <div class="category-input">
-                <label for="recipient">
-                    <h5>Your Name (optional)</h5>
-                </label>
-                <div>
-                    <label hidden for="creatorName">Name</label>
-                    <input maxlength="20" type="text" id="creatorName" @bind-value="Creator" placeholder="Your name" />
+                    <label for="titleName">
+                        <h5>Title</h5>
+                    </label>
+                    <div>
+                        <label hidden for="titleName">Title</label>
+                        <input maxlength="20" type="text" id="titleName" @bind-value="Title"
+                            placeholder="E.G. Night on the Town" />
+                    </div>
+                    <label for="recipient">
+                        <h5>Who is this for?</h5>
+                    </label>
+                    <div>
+                        @* <input id="recipient" placeholder="e.g. Grandma, or Anyone" @bind="Recipient" type="text" />
+                        *@
+                        <select @bind="Recipient">
+                            @foreach (string recipient in Recipients)
+                            {
+                                <option>@recipient</option>
+                            }
+                        </select>
+                    </div>
+
+                    <label for="creator">
+                        <h5>Your Name (optional)</h5>
+                    </label>
+                    <div>
+                        <label hidden for="creatorName">Name</label>
+                        <input maxlength="20" type="text" id="creatorName" @bind-value="Creator"
+                            placeholder="Your name" />
+                    </div>
                 </div>
-
             </div>
         </div>
         <div class="flex justify-center gap">
             <button class="btn" type="submit">Create Game</button>
-            @if (GameURL != null)
-            {
-                <button class="btn" @onclick="() => CopyTextToClipboard(GameURL)">Copy link</button>
-            }
         </div>
-        @if (GameURL != null)
-        {
 
-            <p class="text-center my-3">@GameURL</p>
-
-        }
 
 
 
@@ -206,6 +213,7 @@
 
     [Required]
     private string CategoryOne = "";
+    private string? Title = "";
     [Required]
     private List<string> CluesOne = new List<string>() { "", "", "", "" };
     [Required]
@@ -290,6 +298,7 @@
     public class GameData
     {
         public string? Recipient { get; set; }
+        public string? Title { get; set; }
         public string? Creator { get; set; }
         public Board? Board { get; set; }
 
@@ -305,12 +314,18 @@
         List<Row> rows = new List<Row> { firstRow, secondRow, thirdRow, fourthRow };
         Board GameBoard = new Board(rows);
 
-        var data = new GameData { Recipient = Recipient, Board = GameBoard, CreatedAt = DateTime.Now, Creator = Creator };
+        var data = new GameData
+            {
+                Recipient = Recipient,
+                Board = GameBoard,
+                CreatedAt = DateTime.Now,
+                Creator = Creator,
+                Title = Title
+            };
         if (ValidateForm())
         {
             var docID = await JSRuntime.InvokeAsync<string>("addDataToFirestore", "games", data);
             GameURL = $"https://davidsorensen.dev/play/{docID}";
-            await CopyTextToClipboard(GameURL);
             CategoryOne = "";
             CategoryTwo = "";
             CategoryThree = "";
@@ -321,6 +336,7 @@
             CluesThree = new List<string>() { "", "", "", "" };
             CluesFour = new List<string>() { "", "", "", "" };
             await InvokeAsync(StateHasChanged);
+            NavigationManager.NavigateTo(GameURL);
         }
         else
         {
@@ -328,9 +344,6 @@
         }
     }
 
-    private async Task CopyTextToClipboard(string text)
-    {
-        await JSRuntime.InvokeVoidAsync("clipboardCopy.copyText", text);
-    }
+
 
 }

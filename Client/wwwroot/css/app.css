@@ -164,6 +164,10 @@ h1:focus {
     text-align: center;
 }
 
+.uppercase {
+    text-transform: uppercase;
+}
+
 .flex {
     display: flex;
 }
@@ -205,6 +209,7 @@ h1:focus {
 .game-tile-selected {
     background-color: var(--clr-primary);
 }
+
 .game-tile-selected p {
     color: white;
 }

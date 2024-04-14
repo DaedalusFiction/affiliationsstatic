@@ -8,7 +8,7 @@
 <div class="container container-sm">
 
     <div class="w-full">
-        <h1 class="text-center">AFFILIATIONS</h1>
+        <h1 class="text-center uppercase">@(Title != null ? Title : "Affiliations")</h1>
         @if (Mistakes == 0 && solvedRows.Count == 4)
         {
             <Confetti />
@@ -79,6 +79,8 @@
     public Board? Solution { get; set; }
     public string? Recipient { get; set; } = "Anybody";
     public string? Creator { get; set; } = "Anonymous";
+
+    public string? Title { get; set; } = "Affiliasdftions";
     public string[]? gameBoard = { };
 
 
@@ -109,6 +111,7 @@
                 @* var name = gameData.Name; *@
                 Recipient = gameData.Recipient;
                 Creator = gameData.Creator;
+                Title = gameData.Title;
             }
             else
             {
@@ -130,6 +133,7 @@
     {
         public string? Id { get; set; }
         public string? Recipient { get; set; }
+        public string? Title { get; set; }
         public string? Creator { get; set; }
 
         public Board? board { get; set; }
